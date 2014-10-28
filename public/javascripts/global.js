@@ -8,6 +8,9 @@ $(document).ready(function(){
 
   $('#btnAddUser').on('click', addUser);
 
+  // because the delete user link is dynamically inserted, on document load we cannot jQuery-grab it yet. However we can refer to the element that nests it
+  $('#userList table tbody').on('click', 'td a.linkdeleteuser', deleteUser);
+
 
 });
 
@@ -20,9 +23,9 @@ function populateTable(){
     // use JSON to grab data from the 'api' and incorporate the values into a table element
     $.each(data, function(){
       tableContent += '<tr>';
-      tableContent += '<td><a href="#" class="linkshowuser" rel="' + this.username + '" title="Show Details">' + this.username + '</a></td>'
+      tableContent += '<td><a href="#" class="linkshowuser" rel="' + this.username + '" title="Show Details">' + this.username + '</a></td>'      
       tableContent += '<td>' + this.email + '</td>';
-      tableContent += '<td><a href="#" class="linkdeleteuser" rel="' + this.id + '">delete</a></td>';
+      tableContent += '<td><a href="#" class="linkdeleteuser" rel="' + this._id + '">delete</a></td>';
       tableContent += '</tr>'
     });
 
@@ -98,10 +101,32 @@ function addUser(event) {
     alert('Fill in all the fields ya n00b');
     return false;
   }
-
-
 };
 
+function deleteUser(event) {
+  event.preventDefault();
+  var confirmation = confirm('Are you sure you want to delete this user?');
+  if (confirmation === true) {
+    $.ajax({
+      type: 'DELETE',
+      url: '/users/deleteuser/' + $(this).attr('rel')
+    }).done(function(response){
+      // checking for a successful ajax response, which will be blank
+      if (response.msg === '') {
+      }
+      else {
+        alert('Error: ' + response.msg);
+      }
+      // update the table
+      populateTable();
+    });
+  }
+  else {
+    // if the user changes his mind and says not to delete
+    return false;
+  }
+
+};
 
 
 

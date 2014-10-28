@@ -25,4 +25,14 @@ router.post('/adduser', function(req, res){
   });
 });
 
+router.delete('/deleteuser/:id', function(req, res){
+  var db = req.db;
+  var userToDelete = req.params.id;
+  db.collection('userlist').removeById(userToDelete, function(err, result){
+    // because we should only be sending one user at once, should throw an error if client somehow tries to delete more than one
+    // a successful deletion will return '1'
+    res.send((result === 1) ? { msg: '' } : { msg:'error: ' + err });
+  });
+});
+
 module.exports = router;
